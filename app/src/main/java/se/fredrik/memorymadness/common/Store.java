@@ -62,6 +62,8 @@ public class Store {
                 return CardReducers.resetImageForIncorrectCards(state);
             case GAME_OVER:
                 return CardReducers.setGameOver(state);
+            case SET_MATCH_FOUND:
+                return CardReducers.setMatchFound(state, action);
             default:
                 return state;
         }

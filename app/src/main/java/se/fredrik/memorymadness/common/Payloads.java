@@ -5,5 +5,6 @@ package se.fredrik.memorymadness.common;
  */
 
 public enum Payloads {
-    SELECTED_CARD_ID
+    SELECTED_CARD_ID,
+    MATCHED_CARDS
 }

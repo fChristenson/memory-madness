@@ -1,6 +1,8 @@
 package se.fredrik.memorymadness.components.card;
 
+import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.UUID;
 
 import se.fredrik.memorymadness.R;
@@ -22,7 +24,7 @@ public class CardReducers {
             Card card = i.next();
             if (card.getId() == selectedCardId) {
                 card.setSelected(true);
-                card.setImageId(R.mipmap.card_active);
+                card.setShowImage(true);
             }
         }
 
@@ -32,9 +34,12 @@ public class CardReducers {
     public static AppState resetCards(AppState state) {
         for(ListIterator<Card> i = state.getCards().listIterator(); i.hasNext();) {
             Card card = i.next();
-            card.setImageId(R.mipmap.card);
             card.setSelected(false);
+            card.setShowImage(false);
+            card.setHasFoundMatch(false);
         }
+
+        CardUtils.shuffleCards(state.getCards());
 
         return state;
     }
@@ -62,7 +67,7 @@ public class CardReducers {
         for(ListIterator<Card> i = state.getCards().listIterator(); i.hasNext();) {
             Card card = i.next();
             if (card.hasFoundMatch() == false) {
-                card.setImageId(R.mipmap.card);
+                card.setShowImage(false);
             }
         }
         return state;
@@ -85,6 +90,18 @@ public class CardReducers {
 
     public static AppState resetGameOver(AppState state) {
         state.setGameOver(false);
+        return state;
+    }
+
+    public static AppState setMatchFound(AppState state, Action action) {
+        List<Card> matches = (List<Card>) action.getPayload().get(Payloads.MATCHED_CARDS);
+
+        for(Card card : state.getCards()) {
+            if(matches.contains(card)) {
+                card.setHasFoundMatch(true);
+            }
+        }
+
         return state;
     }
 

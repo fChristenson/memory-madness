@@ -9,6 +9,7 @@ import java.util.UUID;
 public class Card {
     private final UUID id;
     private int imageId;
+    private boolean showImage;
     private boolean hasFoundMatch;
     private boolean isSelected;
 
@@ -21,6 +22,7 @@ public class Card {
         this.imageId = imageId;
         this.isSelected = isSelected;
         this.hasFoundMatch = false;
+        this.showImage = false;
     }
 
     public UUID getId() {
@@ -39,15 +41,19 @@ public class Card {
         return imageId;
     }
 
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
-    }
-
     public boolean hasFoundMatch() {
         return hasFoundMatch;
     }
 
     public void setHasFoundMatch(boolean hasFoundMatch) {
         this.hasFoundMatch = hasFoundMatch;
+    }
+
+    public boolean showImage() {
+        return showImage;
+    }
+
+    public void setShowImage(boolean showImage) {
+        this.showImage = showImage;
     }
 }

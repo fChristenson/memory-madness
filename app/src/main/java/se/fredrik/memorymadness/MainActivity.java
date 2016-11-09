@@ -3,19 +3,26 @@ package se.fredrik.memorymadness;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import se.fredrik.memorymadness.common.Action;
 import se.fredrik.memorymadness.common.Actions;
 import se.fredrik.memorymadness.common.AppState;
+import se.fredrik.memorymadness.common.Db;
+import se.fredrik.memorymadness.common.Payloads;
 import se.fredrik.memorymadness.common.Store;
 import se.fredrik.memorymadness.common.StoreSubscriber;
+import se.fredrik.memorymadness.components.card.Card;
 import se.fredrik.memorymadness.components.card.CardAdapter;
 import se.fredrik.memorymadness.components.card.CardClickListener;
 import se.fredrik.memorymadness.components.card.CardUtils;
@@ -30,12 +37,14 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
     private static final long TIME_PER_PAIR = 3000;
     private static final String LOSER_TEXT = "You lost, much sadness! :(";
     private static final float ANIMATION_MAX_VALUE = TIME_PER_PAIR / 29;
-    private final int CARD_TURN_DELAY = 1000;
+    private static final int CARD_TURN_DELAY = 1000;
+
     private UUID token;
     private GridView gridview;
     private Handler handler;
     private TextView score;
     private TextView combo;
+    private TextView best;
     private FrameLayout overlay;
     private TextView overlayText;
     private ProgressBar progressBar;
@@ -53,6 +62,10 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
 
         score = (TextView) findViewById(R.id.score);
         combo = (TextView) findViewById(R.id.combo);
+
+        best = (TextView) findViewById(R.id.best);
+        best.setText(makeBestScoreText());
+
         overlayText = (TextView) findViewById(R.id.overlayText);
 
         overlay = (FrameLayout) findViewById(R.id.overlay);
@@ -70,6 +83,25 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
 
         this.token = Store.subscribe(this);
         Store.dispatch(new Action(Actions.RESET_GAME));
+    }
+
+    private String makeBestScoreText() {
+        Db db = new Db(getBaseContext());
+        int bestScore = db.getBestScore();
+        db.close();
+        return "Best\n" + bestScore;
+    }
+
+    private boolean addBestScore(int score) {
+        Db db = new Db(getBaseContext());
+        int bestScore = db.getBestScore();
+
+        if (score > bestScore) {
+            db.insertScore(score);
+        }
+
+        db.close();
+        return true;
     }
 
     @Override
@@ -94,27 +126,44 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
         boolean areSameImages = CardUtils.sameCardsSelected(state.getCards());
         boolean gameIsWon = CardUtils.allCardsAreTurnedUp(state.getCards());
 
+        List<Card> selectedImages = CardUtils.findSelectedCards(state.getCards());
+        boolean cardsHaveBeenMatched = CardUtils.cardsHaveAllBeenMatched(selectedImages);
+
         if (gameIsWon) {
             overlayText.setText(WINNER_TEXT);
             overlay.setVisibility(View.VISIBLE);
+            addBestScore(state.getScore());
+            best.setText(makeBestScoreText());
+            progressBar.clearAnimation();
+            handler.removeCallbacks(timer);
             return;
         }
         else if(state.isGameOver()) {
             overlayText.setText(LOSER_TEXT);
             overlay.setVisibility(View.VISIBLE);
+            addBestScore(state.getScore());
+            best.setText(makeBestScoreText());
+            progressBar.clearAnimation();
+            handler.removeCallbacks(timer);
             return;
         }
-        else if(hasSelectedTwoOrMoreCards && areSameImages) {
+        else if(hasSelectedTwoOrMoreCards && areSameImages && !cardsHaveBeenMatched) {
+            List<Card> selectedCards = CardUtils.findSelectedCards(state.getCards());
+
             Store.dispatch(new Action(Actions.SET_CARDS_TO_UNSELECTED));
             Store.dispatch(new Action(Actions.SET_COMBO));
             Store.dispatch(new Action(Actions.SET_SCORE));
+
+            Store.dispatch(new Action(Actions.SET_MATCH_FOUND, makeMatchFoundPayload(selectedCards)));
+
             progressBar.clearAnimation();
             progressBar.startAnimation(animation);
             handler.removeCallbacks(timer);
             handler.postDelayed(timer, TIME_PER_PAIR);
             return;
         }
-        else if(hasSelectedTwoOrMoreCards) { // not the same images
+        // not the same images and cards are not already matched
+        else if(hasSelectedTwoOrMoreCards && !cardsHaveBeenMatched) {
             // if cards are not matches delay turning them back
             handler.postDelayed(new IncorrectCardTurner(), CARD_TURN_DELAY);
             progressBar.clearAnimation();
@@ -123,5 +172,17 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
             handler.postDelayed(timer, TIME_PER_PAIR);
             return;
         }
+        // user presses two cards that have been matched
+        else if (hasSelectedTwoOrMoreCards) {
+            Store.dispatch(new Action(Actions.SET_CARDS_TO_UNSELECTED));
+            Store.dispatch(new Action(Actions.RESET_IMAGE_FOR_INCORRECT_CARDS));
+            return;
+        }
+    }
+
+    private Map<Payloads, Object> makeMatchFoundPayload(List<Card> selectedCards) {
+        Map<Payloads, Object> payload = new HashMap<>();
+        payload.put(Payloads.MATCHED_CARDS, selectedCards);
+        return payload;
     }
 }

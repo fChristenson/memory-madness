@@ -1,8 +1,13 @@
 package se.fredrik.memorymadness.components.card;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 import se.fredrik.memorymadness.R;
 
@@ -11,6 +16,22 @@ import se.fredrik.memorymadness.R;
  */
 
 public class CardUtils {
+    public static List<Card> makeCards() {
+        int[] cardIdArray = {
+          R.mipmap.card_1, R.mipmap.card_2, R.mipmap.card_3, R.mipmap.card_4,
+          R.mipmap.card_5, R.mipmap.card_6, R.mipmap.card_7, R.mipmap.card_8,
+          R.mipmap.card_9, R.mipmap.card_10, R.mipmap.card_11, R.mipmap.card_12
+        };
+
+        List<Card> cards = new ArrayList<>();
+        for(int id : cardIdArray) {
+            cards.add(new Card(id));
+            cards.add(new Card(id));
+        }
+
+        return cards;
+    }
+
     public static boolean hasSelectedTwoOrMoreCards(List<Card> cards) {
         int count = 0;
         for(Iterator<Card> i = cards.iterator(); i.hasNext();) {
@@ -48,11 +69,31 @@ public class CardUtils {
         List<Card> matches = new ArrayList<>();
         for(Iterator<Card> i = cards.iterator(); i.hasNext();) {
             Card card = i.next();
-            if (card.getImageId() != R.mipmap.card) {
+            if (card.showImage()) {
                 matches.add(card);
             }
         }
 
         return cards.size() == matches.size();
+    }
+
+    public static boolean cardsHaveAllBeenMatched(List<Card> cards) {
+        boolean result = true;
+
+        for(Card card : cards) {
+            if(!card.hasFoundMatch()) {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public static List<Card> shuffleCards(List<Card> cards) {
+        long seed = System.nanoTime();
+        Collections.shuffle(cards, new Random(seed));
+        Collections.shuffle(cards, new Random(seed));
+        return cards;
     }
 }

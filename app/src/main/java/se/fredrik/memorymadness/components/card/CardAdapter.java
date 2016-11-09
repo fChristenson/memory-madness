@@ -9,6 +9,8 @@ import android.widget.ImageView;
 
 import java.util.List;
 
+import se.fredrik.memorymadness.R;
+
 /**
  * Created by fredrik on 2016-11-02.
  */
@@ -44,20 +46,28 @@ public class CardAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         ImageView imageView;
         if (null == view) {
-            return makeNewImageView(this.mContext, this.cards.get(i).getImageId());
+            return makeNewImageView(this.mContext, this.cards.get(i));
         }
         else {
             imageView = (ImageView) view;
-            imageView.setImageResource(this.cards.get(i).getImageId());
-            return imageView;
+            return setCardImage(imageView, this.cards.get(i));
         }
     }
 
-    private static ImageView makeNewImageView(Context mContext, int imageId) {
+    private static ImageView makeNewImageView(Context mContext, Card card) {
         ImageView imageView = new ImageView(mContext);
         imageView.setLayoutParams(new GridView.LayoutParams(IMAGE_WIDTH, IMAGE_HEIGHT));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setImageResource(imageId);
+        return setCardImage(imageView, card);
+    }
+
+    private static ImageView setCardImage(ImageView imageView, Card card) {
+        if(card.showImage()) {
+            imageView.setImageResource(card.getImageId());
+        }
+        else {
+            imageView.setImageResource(R.mipmap.card);
+        }
 
         return imageView;
     }
