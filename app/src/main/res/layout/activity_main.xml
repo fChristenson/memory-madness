@@ -52,12 +52,16 @@
 
     <GridView
         android:id="@+id/card_container"
-        android:layout_width="@dimen/card_row_width"
-        android:layout_height="match_parent"
-        android:verticalSpacing="-12dp"
-        android:horizontalSpacing="-62dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="16dp"
+        android:horizontalSpacing="0dp"
         android:numColumns="6"
-        android:layout_marginStart="22dp"
+        android:padding="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="104dp"
+        android:gravity="center"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/progress_bar"
         android:layout_toEndOf="@+id/progress_bar" />

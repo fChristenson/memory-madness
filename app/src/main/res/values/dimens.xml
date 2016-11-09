@@ -3,5 +3,5 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="progress_bar_width">10dp</dimen>
-    <dimen name="card_row_width">500dp</dimen>
+    <dimen name="card_row_width">475dp</dimen>
 </resources>

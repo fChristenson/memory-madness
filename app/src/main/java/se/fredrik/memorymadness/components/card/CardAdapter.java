@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
@@ -17,8 +18,8 @@ import se.fredrik.memorymadness.R;
 
 public class CardAdapter extends BaseAdapter {
 
-    private static final int IMAGE_WIDTH = 254;
-    private static final int IMAGE_HEIGHT = 254;
+    private static final int IMAGE_WIDTH = 300;
+    private static final int IMAGE_HEIGHT = 300;
     private Context mContext;
     private List<Card> cards;
 
@@ -56,7 +57,6 @@ public class CardAdapter extends BaseAdapter {
 
     private static ImageView makeNewImageView(Context mContext, Card card) {
         ImageView imageView = new ImageView(mContext);
-        imageView.setLayoutParams(new GridView.LayoutParams(IMAGE_WIDTH, IMAGE_HEIGHT));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         return setCardImage(imageView, card);
     }

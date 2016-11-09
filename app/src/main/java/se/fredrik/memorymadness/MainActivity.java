@@ -3,7 +3,6 @@ package se.fredrik.memorymadness;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -33,8 +32,8 @@ import se.fredrik.memorymadness.components.progressBar.ProgressBarTimer;
 
 public class MainActivity extends AppCompatActivity implements StoreSubscriber {
 
+    private static final long TIME_PER_PAIR = 4000;
     private static final String WINNER_TEXT = "You won, such wow! :)";
-    private static final long TIME_PER_PAIR = 3000;
     private static final String LOSER_TEXT = "You lost, much sadness! :(";
     private static final float ANIMATION_MAX_VALUE = TIME_PER_PAIR / 29;
     private static final int CARD_TURN_DELAY = 1000;
@@ -68,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
 
         overlayText = (TextView) findViewById(R.id.overlayText);
 
-        overlay = (FrameLayout) findViewById(R.id.overlay);
-        overlay.setOnClickListener(new OverlayClickListener());
-
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bar));
 
@@ -80,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements StoreSubscriber {
         animation.setDuration(TIME_PER_PAIR);
 
         timer = new ProgressBarTimer(animation, progressBar);
+
+        overlay = (FrameLayout) findViewById(R.id.overlay);
+        overlay.setOnClickListener(new OverlayClickListener(progressBar, handler, timer));
 
         this.token = Store.subscribe(this);
         Store.dispatch(new Action(Actions.RESET_GAME));
