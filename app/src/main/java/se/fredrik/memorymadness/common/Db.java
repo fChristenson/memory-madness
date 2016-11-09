@@ -45,7 +45,7 @@ public class Db extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             return cursor.getInt(0);
         }
-        return -1;
+        return 0;
     }
 
     @Override
